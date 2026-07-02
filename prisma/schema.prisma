@@ -1,0 +1,261 @@
+generator client {
+  provider = "prisma-client-js"
+}
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  CUSTOMER
+  ADMIN
+}
+
+// Kept for reference; no longer used as a column type
+enum BaseFruit {
+  MANGO
+  AMBARELLA
+  PINEAPPLE
+  VERALU
+  RED_ONION
+  DATES
+}
+
+enum OrderStatus {
+  PENDING
+  PROCESSING
+  OUT_FOR_DELIVERY
+  COMPLETED
+  CANCELLED
+}
+
+enum PaymentMethod {
+  BANK_TRANSFER
+  CASH_ON_DELIVERY
+}
+
+enum PaymentStatus {
+  PENDING_VERIFICATION
+  PAID
+  FAILED
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  name         String
+  phone        String?
+  role         Role     @default(CUSTOMER)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  orders         Order[]
+  customBuilds   CustomAchcharu[]
+  savedAddresses DeliveryAddress[]
+
+  @@index([role])
+}
+
+model AchcharuProduct {
+  id          String   @id @default(cuid())
+  name        String
+  slug        String   @unique
+  description String
+  ingredients Json
+  priceQAR    Decimal  @db.Decimal(10, 2)
+  imageUrl    String
+  stockLevel  Int      @default(0)
+  isAvailable Boolean  @default(true)
+  isFeatured  Boolean  @default(false)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  orderItems OrderItem[]
+
+  @@index([isAvailable, isFeatured])
+}
+
+// AddOn.type is now a plain String key (e.g. "MALDIVE_FISH") so admin can add new ones
+model AddOn {
+  id          String  @id @default(cuid())
+  type        String  @unique  // stable string key, never changed after creation
+  name        String
+  description String?
+  priceQAR    Decimal @db.Decimal(10, 2)
+  isAvailable Boolean @default(true)
+  sortOrder   Int     @default(0)
+
+  selections CustomAchcharuAddOn[]
+}
+
+// Admin-managed spice levels — replaces the hardcoded SpiceLevel enum + SPICE_MULTIPLIERS map
+model SpiceOption {
+  id          String   @id @default(cuid())
+  key         String   @unique  // e.g. "MILD", "GHOST_PEPPER" — stable, not changed after creation
+  label       String            // display name e.g. "Mild", "Ghost Pepper"
+  emoji       String   @default("🌶️")
+  description String?
+  multiplier  Decimal  @db.Decimal(5, 3)  // e.g. 1.000, 1.200
+  isActive    Boolean  @default(true)
+  sortOrder   Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+model CustomAchcharu {
+  id           String  @id @default(cuid())
+  userId       String?
+  baseFruit    String  // JSON array of BaseFruit values e.g. ["MANGO","PINEAPPLE"]
+  spiceLevel   String  // SpiceOption.key value e.g. "MILD"
+  extraSweet   Boolean @default(false)
+  extraSour    Boolean @default(false)
+  extraMustard Boolean @default(false)
+  extraGarlic  Boolean @default(false)
+  customNotes  String?
+  basePrice       Decimal @db.Decimal(10, 2)
+  priceMultiplier Decimal @db.Decimal(4, 2) @default(1.00)
+  totalPriceQAR   Decimal @db.Decimal(10, 2)
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+
+  user       User?                 @relation(fields: [userId], references: [id])
+  addOns     CustomAchcharuAddOn[]
+  orderItems OrderItem[]
+}
+
+model CustomAchcharuAddOn {
+  customAchcharuId String
+  addOnId          String
+  quantity         Int    @default(1)
+
+  customAchcharu CustomAchcharu @relation(fields: [customAchcharuId], references: [id], onDelete: Cascade)
+  addOn          AddOn          @relation(fields: [addOnId], references: [id])
+
+  @@id([customAchcharuId, addOnId])
+}
+
+model Order {
+  id             String        @id @default(cuid())
+  orderNumber    String        @unique
+  userId         String?
+  status         OrderStatus   @default(PENDING)
+  paymentMethod  PaymentMethod
+  subtotalQAR    Decimal       @db.Decimal(10, 2)
+  deliveryFeeQAR Decimal       @db.Decimal(10, 2) @default(0)
+  totalPriceQAR  Decimal       @db.Decimal(10, 2)
+  customerNotes  String?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  user            User?            @relation(fields: [userId], references: [id])
+  items           OrderItem[]
+  deliveryDetails DeliveryDetails?
+  payment         Payment?
+
+  @@index([userId, status])
+  @@index([status, createdAt])
+}
+
+model OrderItem {
+  id               String  @id @default(cuid())
+  orderId          String
+  productId        String?
+  customAchcharuId String?
+  quantity         Int     @default(1)
+  unitPriceQAR     Decimal @db.Decimal(10, 2)
+  subtotalQAR      Decimal @db.Decimal(10, 2)
+
+  order          Order            @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product        AchcharuProduct? @relation(fields: [productId], references: [id])
+  customAchcharu CustomAchcharu?  @relation(fields: [customAchcharuId], references: [id])
+
+  @@index([orderId])
+}
+
+model DeliveryAddress {
+  id            String   @id @default(cuid())
+  userId        String
+  label         String?
+  isDefault     Boolean  @default(false)
+  recipientName String
+  contactPhone  String
+  zone          String
+  street        String
+  building      String
+  apartmentUnit String?
+  directions    String?
+  locationLat   Float?
+  locationLng   Float?
+  googleMapsLink String?
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  user            User              @relation(fields: [userId], references: [id])
+  deliveryDetails DeliveryDetails[]
+
+  @@index([userId, isDefault])
+}
+
+model DeliveryDetails {
+  id             String  @id @default(cuid())
+  orderId        String  @unique
+  savedAddressId String?
+  recipientName  String
+  contactPhone   String
+  zone           String
+  street         String
+  building       String
+  apartmentUnit  String?
+  directions     String?
+  locationLat    Float?
+  locationLng    Float?
+  googleMapsLink String?
+  createdAt      DateTime @default(now())
+
+  order        Order            @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  savedAddress DeliveryAddress? @relation(fields: [savedAddressId], references: [id])
+}
+
+// Admin-managed fruit catalogue — name/emoji/price/availability all editable
+model FruitPrice {
+  id          String   @id @default(cuid())
+  fruit       String   @unique  // stable key e.g. "MANGO" — set once on creation
+  name        String   @default("")  // display name e.g. "Green Mango"
+  emoji       String   @default("🍑")
+  description String?
+  priceQAR    Decimal  @db.Decimal(10, 2)
+  isActive    Boolean  @default(true)
+  sortOrder   Int      @default(0)
+  updatedAt   DateTime @updatedAt
+  createdAt   DateTime @default(now())
+}
+
+// Admin-defined prices for specific fruit combinations
+model FruitMixPrice {
+  id        String   @id @default(cuid())
+  fruitsKey String   @unique // sorted comma-joined fruits e.g. "MANGO,PINEAPPLE"
+  label     String?           // display name e.g. "Mango & Pineapple Special"
+  priceQAR  Decimal  @db.Decimal(10, 2)
+  isActive  Boolean  @default(true)
+  updatedAt DateTime @updatedAt
+  createdAt DateTime @default(now())
+}
+
+model Payment {
+  id                String        @id @default(cuid())
+  orderId           String        @unique
+  paymentMethod     PaymentMethod
+  paymentStatus     PaymentStatus @default(PENDING_VERIFICATION)
+  receiptImageUrl   String?
+  bankName          String?
+  transferReference String?
+  verifiedAt        DateTime?
+  verifiedById      String?
+  adminNotes        String?
+  createdAt         DateTime      @default(now())
+  updatedAt         DateTime      @updatedAt
+
+  order Order @relation(fields: [orderId], references: [id], onDelete: Cascade)
+
+  @@index([paymentStatus, createdAt])
+}

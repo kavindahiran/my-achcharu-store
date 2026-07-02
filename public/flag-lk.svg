@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 40">
+  <!-- Sri Lanka flag: orange stripe, green stripe, maroon field with golden border and lion -->
+  <rect width="60" height="40" fill="#8D153A"/>
+  <rect width="10" height="40" fill="#FF7300"/>
+  <rect x="10" width="10" height="40" fill="#006600"/>
+  <!-- Golden border inside maroon -->
+  <rect x="22" y="3" width="35" height="34" fill="none" stroke="#FFBE00" stroke-width="2"/>
+  <!-- Simplified lion (circle body) -->
+  <circle cx="39" cy="20" r="7" fill="#FFBE00"/>
+  <circle cx="39" cy="14" r="4" fill="#FFBE00"/>
+  <!-- Bo leaves at corners -->
+  <ellipse cx="26" cy="9"  rx="3" ry="4" fill="#006600" transform="rotate(45 26 9)"/>
+  <ellipse cx="53" cy="9"  rx="3" ry="4" fill="#006600" transform="rotate(-45 53 9)"/>
+  <ellipse cx="26" cy="31" rx="3" ry="4" fill="#006600" transform="rotate(-45 26 31)"/>
+  <ellipse cx="53" cy="31" rx="3" ry="4" fill="#006600" transform="rotate(45 53 31)"/>
+</svg>

@@ -1,0 +1,6 @@
+-- AlterTable
+ALTER TABLE "FruitPrice" ADD COLUMN     "description" TEXT,
+ADD COLUMN     "emoji" TEXT NOT NULL DEFAULT '🍑',
+ADD COLUMN     "isActive" BOOLEAN NOT NULL DEFAULT true,
+ADD COLUMN     "name" TEXT NOT NULL DEFAULT '',
+ADD COLUMN     "sortOrder" INTEGER NOT NULL DEFAULT 0;

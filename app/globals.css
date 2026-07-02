@@ -1,0 +1,68 @@
+@import "tailwindcss";
+
+@theme {
+  /* ── Brand Colors ── */
+  --color-spice-50: #fff8f0;
+  --color-spice-100: #ffecd6;
+  --color-spice-200: #ffd4a8;
+  --color-spice-300: #ffb570;
+  --color-spice-400: #ff8c38;
+  --color-spice-500: #f97316;
+  --color-spice-600: #ea6c0a;
+  --color-spice-700: #c2570a;
+  --color-spice-800: #9a4510;
+  --color-spice-900: #7c3a10;
+
+  --color-turmeric-400: #facc15;
+  --color-turmeric-500: #eab308;
+  --color-turmeric-600: #ca8a04;
+
+  --color-leaf-400: #4ade80;
+  --color-leaf-500: #22c55e;
+  --color-leaf-600: #16a34a;
+  --color-leaf-700: #15803d;
+  --color-leaf-800: #166534;
+  --color-leaf-900: #14532d;
+
+  --color-chilli-500: #ef4444;
+  --color-chilli-600: #dc2626;
+  --color-chilli-700: #b91c1c;
+
+  --color-cream-50: #fdfaf5;
+  --color-cream-100: #faf3e7;
+  --color-cream-200: #f5e6cc;
+
+  /* ── Typography ── */
+  --font-display: 'Playfair Display', serif;
+  --font-body: 'Inter', sans-serif;
+
+  /* ── Border Radius ── */
+  --radius-xl: 1rem;
+  --radius-2xl: 1.5rem;
+}
+
+/* ── Side drag-pass animations ── */
+/* tag travels from just below container to just above it */
+@keyframes riseUp {
+  0%         { transform: translateY(230px); opacity: 0; }
+  6%, 94%    { opacity: 1; }
+  100%       { transform: translateY(-34px);  opacity: 0; }
+}
+/* tag travels from just above container to just below it */
+@keyframes sinkDown {
+  0%         { transform: translateY(-34px);  opacity: 0; }
+  6%, 94%    { opacity: 1; }
+  100%       { transform: translateY(230px); opacity: 0; }
+}
+
+@layer base {
+  body {
+    background-color: var(--color-cream-50);
+    color: #1c1917;
+    font-family: var(--font-body);
+  }
+
+  h1, h2, h3 {
+    font-family: var(--font-display);
+  }
+}

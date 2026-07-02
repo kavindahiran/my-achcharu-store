@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 60 40">
+  <!-- Qatar flag: white left panel, maroon right with serrated edge -->
+  <rect width="60" height="40" fill="#8D1B3D"/>
+  <rect width="18" height="40" fill="white"/>
+  <!-- Serrated edge (9 triangles) -->
+  <polygon points="18,0 26,4.4 18,8.9" fill="#8D1B3D"/>
+  <polygon points="18,8.9 26,13.3 18,17.8" fill="#8D1B3D"/>
+  <polygon points="18,17.8 26,22.2 18,26.7" fill="#8D1B3D"/>
+  <polygon points="18,26.7 26,31.1 18,35.6" fill="#8D1B3D"/>
+  <polygon points="18,35.6 26,40 18,40" fill="#8D1B3D"/>
+</svg>
