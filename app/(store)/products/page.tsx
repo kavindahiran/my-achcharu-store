@@ -2,6 +2,8 @@ import Link from 'next/link'
 import ProductCard from '@/components/store/ProductCard'
 import { prisma } from '@/lib/prisma'
 
+export const dynamic = 'force-dynamic'
+
 async function getProducts() {
   try {
     return await prisma.achcharuProduct.findMany({

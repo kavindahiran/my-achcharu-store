@@ -3,6 +3,8 @@ import Link from 'next/link'
 import Image from 'next/image'
 import { prisma } from '@/lib/prisma'
 
+export const dynamic = 'force-dynamic'
+
 async function getProduct(slug: string) {
   return await prisma.achcharuProduct.findUnique({
     where: { slug },
